@@ -1,11 +1,11 @@
-import os, configparser, errno
-
+import os
+import toml
+import errno
 
 def get_config():
     user_config_dir = os.path.expanduser("~")
-    config = configparser.ConfigParser(allow_no_value=True)
-
-    filename = user_config_dir + "/.config/spotui/.spotuirc"
+    
+    filename = os.path.join(user_config_dir, ".config", "youtui", "youtui.toml")
     if not os.path.exists(os.path.dirname(filename)):
         try:
             os.makedirs(os.path.dirname(filename))
@@ -15,43 +15,27 @@ def get_config():
 
     # if config file doesn't exist
     if not os.path.isfile(filename):
-        _create_default_config(config, filename)
+        print(f'Created config file in: {filename}')
+        _create_default_config(filename)
 
-    config.read(filename)
-
-    # check config is valid
-    _check_config(config, filename)
+    config = toml.load(filename)
 
     return config
 
 
-def _create_default_config(configparser, filename):
-    configparser.add_section("spotify_api")
-    configparser.set("spotify_api", "user_name", "*your spotify username*")
-    configparser.set(
-        "spotify_api",
-        "; register an application here: https://developer.spotify.com/dashboard/login",
-    )
-    configparser.set("spotify_api", "client_id", "*your application ID*")
-    configparser.set("spotify_api", "client_secret",
-                     "*your application secret*")
-    configparser.set("spotify_api", "redirect_uri",
-                     "http://localhost:8888/auth")
+def _create_default_config(filename):
+    toml_string = """#PLEASE DONT FORGET THE COMMAS
+#PASTE YOUTUBE PLAYLIST ID'S HERE
 
-    configparser.add_section("other")
-    configparser.set("other", "use_nerd_fonts", "yes")
-    configparser.set("other", "config_version", "1")
+playlists = [ "PL15B1E77BB5708555", # most viewed songs on yt
 
-    configparser.write(open(filename, "w"))
+#lofi hip hop
+"PLofht4PTcKYnaH8w5olJCI-wUVxuoMHqM",
 
+#synthwave radio
+"4XGLLx_L3cc",
+]
+"""
+    with open(filename, "w") as config_file:
+        config_file.write(toml_string)
 
-def _check_config(configparser, filename):
-    user_name = configparser.get("spotify_api", "user_name")
-    client_id = configparser.get("spotify_api", "client_id")
-    client_secret = configparser.get("spotify_api", "client_secret")
-
-    if (client_id == "*your application ID*"
-            or client_secret == "*your application secret*"
-            or user_name == "*your spotify username*"):
-        print("You need to configure: " + filename)
-        exit(1)
