@@ -26,6 +26,8 @@ def get_config():
 def _create_default_config(filename):
     toml_string = """#PLEASE DONT FORGET THE COMMAS
 #PASTE YOUTUBE PLAYLIST ID'S HERE
+# KEEP THIS FILE'S GENERAL STYLE EG. DONT REMOVE THE NEWLINES 
+# TO MAKE THE FILE 1 LINE
 
 playlists = [ "PL15B1E77BB5708555", # most viewed songs on yt
 
@@ -38,4 +40,3 @@ playlists = [ "PL15B1E77BB5708555", # most viewed songs on yt
 """
     with open(filename, "w") as config_file:
         config_file.write(toml_string)
-
