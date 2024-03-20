@@ -35,7 +35,7 @@ playlists = [ "PL15B1E77BB5708555", # most viewed songs on yt
 "PLofht4PTcKYnaH8w5olJCI-wUVxuoMHqM",
 
 #synthwave radio
-"4XGLLx_L3cc",
+"PLUNz3rL3KK9W21UspvmRt3bwsKZFX73DE",
 ]
 """
     with open(filename, "w") as config_file:

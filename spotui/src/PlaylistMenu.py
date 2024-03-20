@@ -2,7 +2,7 @@ import curses
 from spotui.src.util import truncate
 from spotui.src.menu import Menu
 from spotui.src.component import Component
-
+from client import showStatusMsg
 
 class PlaylistMenu(Component):
     def __init__(self, stdscr, api, change_tracklist):
@@ -16,11 +16,14 @@ class PlaylistMenu(Component):
 
     def restart(self):
         self.items = self.api.get_playlists()
+        showStatusMsg(f'{self.items} hello')
+        
         scry, scrx = self.stdscr.getmaxyx()
         self.startx = 0
         self.endx = round(scrx / 4) - 2
         self.starty = 0
         self.endy = scry - 5
+        showStatusMsg(f'{list(map(self.__map_playlists, self.items))}')
         self.component = Menu(
             self.stdscr,
             list(map(self.__map_playlists, self.items)),
@@ -35,21 +38,22 @@ class PlaylistMenu(Component):
             if self.component and self.component.scroll_start else 0,
         )
 
-    def __select_playlist(self, playlist_name, playlist_id, playlist_uri):
+    def __select_playlist(self, playlist_name, playlist_id):
         self.change_tracklist(self.api.get_playlist_tracks(playlist_id),
-                              playlist_name, playlist_uri)
+                              playlist_name)
 
     def __map_playlists(self, item):
         available_space = self.endx - self.startx - 6
         item["text"] = truncate(item["text"], available_space)
 
         def handler():
-            self.__select_playlist(item["text"], item["id"], item["uri"])
+            self.__select_playlist(item["text"], item["id"])
 
         item["handler"] = handler
         return item
 
     def receive_input(self, key):
+        ...
         if key == curses.KEY_ENTER or key in [10, 13]:
             self.items[self.component.selected]["handler"]()
         else:

@@ -62,7 +62,7 @@ class TracksMenu(Component):
     def __map_tracks(self, track):
         available_space = self.endx - self.startx
         highlight = self.currently_playing and self.currently_playing == track[
-            "videoId"]  
+            "id"]  
         max_word_length = round((available_space / 2) - 3)
         track_name = self.__pad_track_text(
             truncate(track["name"], max_word_length),
@@ -79,7 +79,7 @@ class TracksMenu(Component):
         return {
             "text": track_name + " " + artist_name,
             "handler": handler,
-            "type": track['type'],
+            # "type": track['type'],
             "id": track["id"],
             "highlight": highlight,
         }

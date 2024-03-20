@@ -1,16 +1,16 @@
 import os
-import spotipy
+import ytmusicapi
 import spotipy.util as util
 from spotui.src.config import get_config
 from spotui.src.Logging import logging
-
-
+from client import showStatusMsg
+from reverseengineering import is_paused
 class YoutubeAPI:
     client = None
 
     def __init__(self):
         self.auth()
-
+        self.client = ytmusicapi.YTMusic()
     def auth(self):
 
         ...
@@ -39,7 +39,7 @@ class YoutubeAPI:
 
     def get_playing(self):
         try:
-            status = self.client.current_playback()
+            status = is_paused
             return status
         except Exception as e:
             pass
@@ -138,34 +138,31 @@ class YoutubeAPI:
             # playlists = self.client.user_playlists('spotify')
 
             playlists = []
-            offset = 0
+            for playlist in get_config()['playlists']:
+                # time.sleep(1)
+                # print(playlist)
 
-            while True:
-                get_playlists = self.client.current_user_playlists(offset=offset)["items"]
-                playlists.extend(get_playlists)
-                if len(get_playlists) < 50:
-                    break
-                offset += 50
-                
+                get_playlists = self.client.get_playlist(f'{playlist}', limit=0,related=False,suggestions_limit=0)
+                # print(get_playlists)
+                playlists.append({key: get_playlists.get(key) for key in ['title', 'id']}) #seperate stuff
 
-            return list(map(self.__map_playlists, playlists))
+
+            out = list(map(self.__map_playlists, playlists))
+            return out
         except Exception as e:
             return []
             pass
 
     def get_playlist_tracks(self, playlist_id):
-        try:
-            results = self.client.user_playlist(self.user_name,
-                                                playlist_id,
-                                                fields="tracks,next")
-            tracks = results["tracks"]
-            items = tracks["items"]
-            while tracks["next"]:
-                tracks = self.client.next(tracks)
-                items += tracks["items"]
-            return list(map(self.__map_tracks, items))
-        except Exception as e:
-            pass
+        # try:
+            playlist = self.client.get_playlist(playlist_id,limit=None,related=False,suggestions_limit=0)
+            # showStatusMsg(f"{tracks['tracks']}")
+            tracks = [{key: track.get(key) for key in ['title', 'id', 'artists']} for track in playlist['tracks']]
+
+            return list(map(self.__map_tracks, tracks)) 
+        
+        # except Exception as e:
+        #     pass
 
     def get_devices(self):
         try:
@@ -197,26 +194,22 @@ class YoutubeAPI:
         items = tracks['items']
         return items
 
-    def __map_tracks(self, item):
-        track = item["track"] if "track" in item else item
-        return {
-            "name": '(' + track['type'] + ') ' + track["name"] if track['type'] != 'track' else track['name'],
-            "artist": track["artists"][0]["name"] if track['type'] == 'track' else track['publisher'] if track['type'] == 'show' else ' ',
-            # "artist": 'james',
-            "type": track['type'],
-            "id": track["id"] if track['id'] else False,
-            "uri": track["uri"],
-        }
+    def __map_tracks(self, track):
+
+        # showStatusMsg(f'TRACK: ----    {track}')
+        out = {"name": track['title'],
+        "artist": track["artists"][0]["name"],
+        "id": track["id"]}
+        
+        return out
 
     def __map_playlists(self, playlist):
         return {
-            "text": playlist["name"],
+            "text": playlist["title"],
             "id": playlist["id"],
-            "uri": playlist["uri"]
+            # "uri": playlist[None]
         }
 
     def __map_devices(self, device):
         return {"text": device["name"], "id": device["id"]}
 
-
-client = YoutubeAPI()

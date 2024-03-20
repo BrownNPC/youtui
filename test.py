@@ -53,9 +53,21 @@
 #TRYING OUT YTMUSICAPI
 
 from ytmusicapi import YTMusic
-
+from spotui.src.config import get_config
+import time
 ytmusic = YTMusic()
 
-song = ytmusic.get_song('zWFQOIDBKBs')
-values = {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']} #seperate stuff
-print(values)
+playlists = []
+
+for playlist in get_config()['playlists']:
+    # time.sleep(1)
+    # print(playlist)
+
+    get_playlists = ytmusic.get_playlist(f'{playlist}')
+    # print(get_playlists)
+    playlists.append({key: get_playlists.get(key) for key in ['title', 'id']}) #seperate stuff
+    # {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']}
+
+
+# values = {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']} #seperate stuff
+# print(playlists)

@@ -2,7 +2,7 @@
 
 # IS PAUSED
 
-{
+is_paused={
     "device": {
         "id": "6848ed3a99ff09722e4280af1cb375db02bdf63b",
         "is_active": True,

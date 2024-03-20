@@ -4,7 +4,7 @@ import curses
 from threading import Thread, Lock
 from spotui.src.util import debounce
 from spotui.src.Logging import logging
-from spotui.src.spotifyApi import SpotifyApi
+from spotui.src.spotifyApi import YoutubeAPI
 from spotui.src.TracksMenu import TracksMenu
 from spotui.src.LibraryMenu import LibraryMenu
 from spotui.src.PlaylistMenu import PlaylistMenu
@@ -18,7 +18,7 @@ lock = Lock()
 class MainForm:
     def __init__(self, stdscr):
         self.stdscr = stdscr
-        self.api = SpotifyApi()
+        self.api = YoutubeAPI()
         self.pause_updates = False
         self.device_id = None
         self.tracklist_uri = None
@@ -79,11 +79,11 @@ class MainForm:
         self.tracklist_stack = []
 
         # Set initial tracklist
-        if self.status and 'context' in self.status and type(self.status["context"]) is dict and 'uri' in self.status["context"]:
-            self.change_tracklist(
-                self.api.get_playlist_tracks(self.status["context"]["uri"]), "Previous Session")
-        else:
-            self.change_tracklist(self.api.get_top_tracks(), "Top Tracks")
+        # if self.status and 'context' in self.status and type(self.status["context"]) is dict and 'uri' in self.status["context"]:
+        #     self.change_tracklist(
+        #         self.api.get_playlist_tracks(self.status["context"]["uri"]), "Previous Session")
+        # else:
+        #     self.change_tracklist(self.api.get_top_tracks(), "Top Tracks")
 
         # Set initial device ID
         devices = self.api.get_devices()
