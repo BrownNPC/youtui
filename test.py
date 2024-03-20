@@ -1,30 +1,44 @@
 
-#USING MPV TO PLAY YOUTUBE AUDIOS WITH PIPED API
-# from piped_api import PipedClient
-# import mpv
+# USING MPV TO PLAY YOUTUBE AUDIOS WITH PIPED API
+from piped_api import PipedClient
+import mpv
 
 
-# import mpv
-# player = mpv.MPV()
+import mpv
+player = mpv.MPV()
 
-# # player.play('https://youtu.be/DOmdB7D-pUU')
-
-
-# import os
-
-# CLIENT = PipedClient()
+# player.play('https://youtu.be/DOmdB7D-pUU')
 
 
-# # Print out the first audio stream URL for a video:
-# video = CLIENT.get_video('MRbRe5f9G3Q')
-# audio_stream = video.get_streams('audio')[3]
-# # print(audio_stream.url)
-# player.play(audio_stream.url)
-# player.wait_for_playback
+import os
+
+CLIENT = PipedClient()
+
+def get_audio_stream(videoid):
+    video = CLIENT.get_video(video_id=videoid)
+    return video.get_streams('audio')[3].url
+
+# Print out the first audio stream URL for a video:
+# print(audio_stream.url)
+player.play(get_audio_stream('MRbRe5f9G3Q'))
+player.wait_for_playback
+# player.property_add("pause", 1)
+print('done')
+
+while True:
+    command = input()
+    if command == 'q':
+        player.play(get_audio_stream('dQw4w9WgXcQ'))
+    elif command == ' ':
+        # player.cycle('pause')
+        print(player._set_property('pause', True))
+    elif command == 'w':
+        player._set_property('pause', False)
 
 
-# while True:
-#     1+1
+
+
+
 # # player.audio_add(audio_stream.url)
 # # os.system(f'mpv "{audio_stream.url}" --no-video')
 
@@ -52,22 +66,26 @@
 
 #TRYING OUT YTMUSICAPI
 
-from ytmusicapi import YTMusic
-from spotui.src.config import get_config
-import time
-ytmusic = YTMusic()
+# from ytmusicapi import YTMusic
+# from spotui.src.config import get_config
+# import time
+# ytmusic = YTMusic()
 
-playlists = []
+# playlists = []
 
-for playlist in get_config()['playlists']:
-    # time.sleep(1)
-    # print(playlist)
+# for playlist in get_config()['playlists']:
+#     # time.sleep(1)
+#     # print(playlist)
 
-    get_playlists = ytmusic.get_playlist(f'{playlist}')
-    # print(get_playlists)
-    playlists.append({key: get_playlists.get(key) for key in ['title', 'id']}) #seperate stuff
-    # {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']}
+#     get_playlists = ytmusic.get_playlist(f'{playlist}')
+#     # print(get_playlists)
+#     playlists.append({key: get_playlists.get(key) for key in ['title', 'id']}) #seperate stuff
+#     # {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']}
 
 
 # values = {key: song['videoDetails'].get(key) for key in ['title', 'author', 'lengthSeconds', 'videoId']} #seperate stuff
 # print(playlists)
+
+
+# TRYING TO MAKE MPV AUDIO PLAYER
+

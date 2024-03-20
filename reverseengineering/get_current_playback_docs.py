@@ -2,6 +2,16 @@
 
 # IS PAUSED
 
+status = {
+    'is_playing': False,
+    "shuffle_state": False,
+    'repeat_state': 'off',
+    'progress_ms': 5000,
+    
+    # video id
+    'currently_playing': None,
+}
+
 is_paused={
     "device": {
         "id": "6848ed3a99ff09722e4280af1cb375db02bdf63b",
