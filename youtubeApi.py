@@ -5,7 +5,7 @@ from spotui.src.config import get_config
 from spotui.src.Logging import logging
 
 
-class YoutubeAPI:
+class SpotifyApi:
     client = None
 
     def __init__(self):
@@ -219,4 +219,4 @@ class YoutubeAPI:
         return {"text": device["name"], "id": device["id"]}
 
 
-client = YoutubeAPI()
+client = SpotifyApi()

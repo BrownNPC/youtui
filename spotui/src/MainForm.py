@@ -52,7 +52,7 @@ class MainForm:
         # UI components
         self.components = [
             TracksMenu(stdscr, self.api, self.play_track, self.status),
-            LibraryMenu(stdscr, self.api, self.change_tracklist),
+            # LibraryMenu(stdscr, self.api, self.change_tracklist),
             PlaylistMenu(stdscr, self.api, self.change_tracklist),
             NowPlaying(stdscr),
         ]
@@ -127,7 +127,7 @@ class MainForm:
 
             if not self.pause_updates:                
                 self.status = self.api.get_playing()
-                self.components[0].refresh_now_playing(self.status)
+                self.components[0].refresh_now_playing(self.status) #tracksmenu.py
 
             with lock:
                 if not self.pause_updates:

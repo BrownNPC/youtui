@@ -44,7 +44,9 @@ class TracksMenu(Component):
         )
 
     def refresh_now_playing(self, status):
-        currently_playing = (status["item"]["uri"]
+        # get URI of track to match with current track 'spotify:album:1I79ZTFJ5FVLwMYRWvhk73'
+        # in the function __map_tracks
+        currently_playing = (status["item"]["videoId"]
                              if status and status["is_playing"] else None)
         if currently_playing and currently_playing != self.currently_playing:
             self.currently_playing = currently_playing
@@ -60,7 +62,7 @@ class TracksMenu(Component):
     def __map_tracks(self, track):
         available_space = self.endx - self.startx
         highlight = self.currently_playing and self.currently_playing == track[
-            "uri"]
+            "videoId"]  
         max_word_length = round((available_space / 2) - 3)
         track_name = self.__pad_track_text(
             truncate(track["name"], max_word_length),

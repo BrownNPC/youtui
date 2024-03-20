@@ -19,7 +19,7 @@ class PlaylistMenu(Component):
         scry, scrx = self.stdscr.getmaxyx()
         self.startx = 0
         self.endx = round(scrx / 4) - 2
-        self.starty = 6
+        self.starty = 0
         self.endy = scry - 5
         self.component = Menu(
             self.stdscr,
