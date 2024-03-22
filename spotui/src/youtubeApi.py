@@ -1,16 +1,25 @@
-import os
+# from time import sleep
 import ytmusicapi
+import locale 
+
 import spotipy.util as util
 from spotui.src.config import get_config
 from spotui.src.Logging import logging
 from client import showStatusMsg
 from reverseengineering import is_paused
+from piped_api import PipedClient
+import os
+from mpv import MPV
+
 class YoutubeAPI:
     client = None
 
     def __init__(self):
         self.auth()
         self.client = ytmusicapi.YTMusic()
+        self.piped = PipedClient()
+        locale.setlocale(locale.LC_NUMERIC, "C")
+        self.player = MPV()
     def auth(self):
 
         ...
@@ -44,6 +53,10 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
+    def get_audio_stream(self, videoid):
+        video = self.piped.get_video(video_id=videoid)
+        return video.get_streams('audio')[3].url
+
     def search(self, query):
         try:
             classes = ['track', 'show', 'playlist']
@@ -53,14 +66,10 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
-    def start_playback(self,
-                       device_id,
-                       track_uri=None,
-                       context_uri=None,
-                       offset=None):
+    def start_playback(self, video_id):
         try:
-            self.client.start_playback(device_id, context_uri, track_uri,
-                                       offset)
+            stream_url = self.get_audio_stream(video_id)
+            self.player.play(stream_url)
         except Exception as e:
             pass
 

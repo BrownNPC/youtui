@@ -3,6 +3,7 @@ import time
 import locale
 from curses import textpad
 
+
 locale.setlocale(locale.LC_ALL, "")
 code = locale.getpreferredencoding()
 
