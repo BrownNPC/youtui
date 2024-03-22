@@ -29,11 +29,18 @@ while True:
     command = input()
     if command == 'q':
         player.play(get_audio_stream('dQw4w9WgXcQ'))
+        player._set_property('loop-file', 'inf')
     elif command == ' ':
         # player.cycle('pause')
         print(player._set_property('pause', True))
     elif command == 'w':
+        progress_ms = int(player._get_property('time-pos')) * 1000
+        length = int(player._get_property('duration')) * 1000
+        print(length, progress_ms)
         player._set_property('pause', False)
+        
+        player.seek('10')
+        player._set_property('loop-file', False)
 
 
 

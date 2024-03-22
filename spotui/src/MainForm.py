@@ -86,12 +86,7 @@ class MainForm:
         #     self.change_tracklist(self.api.get_top_tracks(), "Top Tracks")
 
         # Set initial device ID
-        devices = self.api.get_devices()
-        if self.status and 'device' in self.status and self.status["device"]["is_active"]:
-            self.device_id = self.status["device"]["id"]
-        else:
-            self.device_id = devices[0]["id"] if devices and len(
-                devices) > 0 else None
+        # devices = None
 
         # Initial render
         self.render()
@@ -119,6 +114,7 @@ class MainForm:
                             key)
                     # re-render
                     self.render()
+                    # self.render()
             except KeyboardInterrupt:
                 sys.exit(0)
 
@@ -167,37 +163,15 @@ class MainForm:
             self.select_next_component()
 
     def play_track(self, track):
-        if track['type'] == 'playlist':
-            self.change_tracklist(self.api.get_playlist_tracks(
-                track['id'] if track['id'] else track['uri']), track['name'], track['uri'])
-            return
-        if track['type'] == 'show':
-            self.change_tracklist(self.api.show_episodes(
-                track['id']), track['name'], track['uri'])
-            return
-        if self.device_id:
-            if self.tracklist_uri:
-                self.api.start_playback(self.device_id, None,
-                                        self.tracklist_uri, {"uri": track["uri"]})
-            else:
-                self.api.start_playback(
-                    self.device_id,
-                    list(map(self.__map_tracklist, filter(self.__filter_tracklist,
-                                                          self.components[0].tracks))),
-                    None,
-                    {"uri": track["uri"]},
-                )
+        self.api.start_playback(track)
 
     @debounce(0.5)
     def toggle_playback(self):
-        if not self.device_id or not self.status:
+        if not self.status:
             return
-        if self.status["is_playing"]:
-            self.api.pause_playback(self.device_id)
-            self.status["is_playing"] = False
-        else:
-            self.api.start_playback(self.device_id)
-            self.status["is_playing"] = True
+
+        self.api.toggle_playback()
+
 
     @debounce(0.5)
     def previous_track(self):
@@ -226,17 +200,17 @@ class MainForm:
             if status["repeat_state"] == "context":
                 self.api.repeat("off")
 
-    @debounce(2)
+    # @debounce(0)
     def seek_backward(self):
-        if self.device_id and self.status and self.status["is_playing"]:
+        if self.status and self.status["is_playing"]:
             progress = self.status["progress_ms"]
-            self.api.seek_track(self.device_id, progress - 10000)
+            self.api.seek_track(-10)
 
-    @debounce(2)
+    # @debounce(0)
     def seek_forward(self):
-        if self.device_id and self.status and self.status["is_playing"]:
+        if self.status and self.status["is_playing"]:
             progress = self.status["progress_ms"]
-            self.api.seek_track(self.device_id, progress + 10000)
+            self.api.seek_track(10)
 
     def search(self, query):
         self.hide_popup()

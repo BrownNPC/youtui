@@ -1,12 +1,12 @@
 # from time import sleep
 import ytmusicapi
-import locale 
+import locale
 
 import spotipy.util as util
 from spotui.src.config import get_config
 from spotui.src.Logging import logging
 from client import showStatusMsg
-from reverseengineering import is_paused
+from reverseengineering import is_paused, is_playing # dummy data
 from piped_api import PipedClient
 import os
 from mpv import MPV
@@ -15,6 +15,11 @@ class YoutubeAPI:
     client = None
 
     def __init__(self):
+
+        # local variables used to update player state
+        self.repeat_state = False
+        self.current_track = '' # track id (video id)
+
         self.auth()
         self.client = ytmusicapi.YTMusic()
         self.piped = PipedClient()
@@ -48,8 +53,28 @@ class YoutubeAPI:
 
     def get_playing(self):
         try:
-            status = is_paused
-            return status
+            status = is_playing
+            
+            status_dynamic = {
+                'is_playing': not self.player._get_property('pause'), # opposite
+                'progress_ms': int(self.player._get_property('time-pos')) * 1000,
+                'shuffle_state': False, # to be implemented
+                'repeat_state': self.repeat_state,
+
+                # repeat_state: False, # to be implemented
+                'item': {
+                    'id': self.current_track,
+                    'name': self.current_track['name'],
+                    'artist': self.current_track['artist'],
+                    'duration_ms': int(self.player._get_property('duration')) * 1000
+                },
+
+                
+                
+        
+
+            }
+            return status_dynamic
         except Exception as e:
             pass
 
@@ -66,10 +91,21 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
-    def start_playback(self, video_id):
+    def start_playback(self, track):
+        showStatusMsg(f'THIS IS TRACK --- {track}')
+        self.current_track = track
+        # dc = {}
+        self.current_track.setdefault('item', {})['id'] = track['id']
+        stream_url = self.get_audio_stream(track['id'])
+        self.player.play(stream_url)
+        return
+            # self.player.wait_until_playing()
+        # except Exception as e:
+            # pass
+
+    def toggle_playback(self):
         try:
-            stream_url = self.get_audio_stream(video_id)
-            self.player.play(stream_url)
+            self.player.cycle('pause')
         except Exception as e:
             pass
 
@@ -91,11 +127,11 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
-    def seek_track(self, device_id, position):
-        try:
-            self.client.seek_track(position, device_id)
-        except Exception as e:
-            pass
+    def seek_track(self, position):
+        # try:
+            self.player.seek(position)
+        # except Exception as e:
+            # pass
 
     def get_top_tracks(self):
         try:
@@ -165,9 +201,9 @@ class YoutubeAPI:
     def get_playlist_tracks(self, playlist_id):
         # try:
             playlist = self.client.get_playlist(playlist_id,limit=None,related=False,suggestions_limit=0)
-            # showStatusMsg(f"{tracks['tracks']}")
-            tracks = [{key: track.get(key) for key in ['title', 'id', 'artists']} for track in playlist['tracks']]
-
+            # showStatusMsg(f"TRACKS IN PLAYLIST  ---\n\n\--- {playlist['tracks']}")
+            tracks = [{key: track.get(key) for key in ['title', 'videoId', 'artists']} for track in playlist['tracks']]
+            
             return list(map(self.__map_tracks, tracks)) 
         
         # except Exception as e:
@@ -188,7 +224,14 @@ class YoutubeAPI:
 
     def repeat(self, state):
         try:
-            devices = self.client.repeat(state)
+            if state:
+                # update local var
+                self.repeat_state = True
+                # enable looping in mpv
+                self.player._set_property('loop-file', "inf")
+            else:
+                self.repeat_state = False
+                self.player._set_property('loop-file', False)
         except Exception as e:
             pass
 
@@ -205,11 +248,11 @@ class YoutubeAPI:
 
     def __map_tracks(self, track):
 
-        # showStatusMsg(f'TRACK: ----    {track}')
+        # showStatusMsg(f'TRACK: ----  \n\n\  {track}')
         out = {"name": track['title'],
         "artist": track["artists"][0]["name"],
-        "id": track["id"]}
-        
+        "id": track["videoId"]}
+        self.current_track = out
         return out
 
     def __map_playlists(self, playlist):

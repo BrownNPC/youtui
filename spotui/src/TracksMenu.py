@@ -2,7 +2,7 @@ import curses
 from spotui.src.util import truncate
 from spotui.src.menu import Menu
 from spotui.src.component import Component
-
+from client import showStatusMsg
 
 class TracksMenu(Component):
     def __init__(self, stdscr, api, play_track, status=None):
@@ -26,6 +26,7 @@ class TracksMenu(Component):
         self.update_tracks(self.tracks, self.title)
 
     def update_tracks(self, tracks, title):
+        showStatusMsg(f'UPDATING TRACKS \n -------- {tracks}')
         self.tracks = tracks
         self.items = list(map(self.__map_tracks, tracks)) if tracks else []
         self.title = title
@@ -46,7 +47,7 @@ class TracksMenu(Component):
     def refresh_now_playing(self, status):
         # get URI of track to match with current track 'spotify:album:1I79ZTFJ5FVLwMYRWvhk73'
         # in the function __map_tracks
-        currently_playing = (status["item"]["videoId"]
+        currently_playing = (status["item"]["id"] # id of the track 
                              if status and status["is_playing"] else None)
         if currently_playing and currently_playing != self.currently_playing:
             self.currently_playing = currently_playing
