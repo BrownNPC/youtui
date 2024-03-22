@@ -19,6 +19,7 @@ class YoutubeAPI:
         # local variables used to update player state
         self.repeat_state = False
         self.current_track = '' # track id (video id)
+        self.loaded_track_ids = [] # track ids from playlist
 
         self.auth()
         self.client = ytmusicapi.YTMusic()
@@ -83,13 +84,31 @@ class YoutubeAPI:
         return video.get_streams('audio')[3].url
 
     def search(self, query):
-        try:
-            classes = ['track', 'show', 'playlist']
-            items = [self.__search_all(c, query) for c in classes]
-            flat_items = [item for sublist in items for item in sublist]
-            return list(map(self.__map_tracks, flat_items))
-        except Exception as e:
-            pass
+        # try:
+
+            search_results = self.client.search(query, filter='songs', limit= 50)
+
+                #a list comprehension to extract the properties "title", artists,
+                # "videoId" from only the dictionaries that contain "category": 'song' from search_results
+            items = [{'name': item['title'], 'artist': item['artists'][0]['name'], 'id': item['videoId']} 
+                        for item in search_results ]
+
+
+            return items
+        # except Exception as e:
+        #     pass
+
+    def __search_all(self, className, query):
+        plural = className + 's'
+        self.client.search()
+        tracks = self.__extract_results(self.client.search(
+            query, 50, 0, className), plural)
+        return tracks
+    
+    def __extract_results(self, results, key):
+        tracks = results[key]
+        items = tracks['items']
+        return items
 
     def start_playback(self, track):
         showStatusMsg(f'THIS IS TRACK --- {track}')
@@ -234,17 +253,6 @@ class YoutubeAPI:
                 self.player._set_property('loop-file', False)
         except Exception as e:
             pass
-
-    def __search_all(self, className, query):
-        plural = className + 's'
-        tracks = self.__extract_results(self.client.search(
-            query, 50, 0, className), plural)
-        return tracks
-
-    def __extract_results(self, results, key):
-        tracks = results[key]
-        items = tracks['items']
-        return items
 
     def __map_tracks(self, track):
 
