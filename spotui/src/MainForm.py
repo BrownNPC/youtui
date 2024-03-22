@@ -4,7 +4,7 @@ import curses
 from threading import Thread, Lock
 from spotui.src.util import debounce
 from spotui.src.Logging import logging
-from spotui.src.spotifyApi import YoutubeAPI
+from spotui.src.youtubeApi import YoutubeAPI
 from spotui.src.TracksMenu import TracksMenu
 from spotui.src.LibraryMenu import LibraryMenu
 from spotui.src.PlaylistMenu import PlaylistMenu
