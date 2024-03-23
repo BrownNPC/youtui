@@ -2,8 +2,8 @@
 # USING MPV TO PLAY YOUTUBE AUDIOS WITH PIPED API
 from piped_api import PipedClient
 import mpv
-
-
+import yt_dlp
+from pprint import pprint
 import mpv
 player = mpv.MPV()
 
@@ -14,40 +14,53 @@ import os
 
 CLIENT = PipedClient()
 
-def get_audio_stream(videoid):
-    video = CLIENT.get_video(video_id=videoid)
-    return video.get_streams('audio')[3].url
+# def get_audio_stream(videoid):
+#     # video = CLIENT.get_video(video_id=videoid)
+#     # return video.get_streams('audio')[3].url
 
-# Print out the first audio stream URL for a video:
-# print(audio_stream.url)
-player.play(get_audio_stream('MRbRe5f9G3Q'))
-player.wait_for_playback
-# player.property_add("pause", 1)
+#     url = f'https://www.youtube.com/watch?v={videoid}'
+#     ydl_opts = {}
+#     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+#     # get all information about the youtube video
+#       info = ydl.extract_info(url, download=False)
+
+#       urls = []
+#       for i in info['formats']:
+#           for j in i['url']:
+#               urls.append(j)
+#     return urls[-1]
+
+# # Print out the first audio stream URL for a video:
+# # print(audio_stream.url)
+player._set_property('vid', False)
+# playlist="""https://www.youtube.com/watch?v=f0HOQGTfkcs
+# https://www.youtube.com/watch?v=pb39n_bEHyA
+# https://www.youtube.com/watch?v=gYPK088cPJI
+# """
+player.loadfile()
+player.wait_until_playing()
+player.playlist_play_index(-1)
+# while len(player.playlist_filenames) < 2:
+# player.playlist_play_index(-1)
+
+# player.play()
+# player.wait_for_playback()
+# for song in playlist:
+#     player.playlist_append(song)
+
+
+# player.loadfile('https://www.youtube.com/watch?v=gYPK088cPJI', 'append-play')
 print('done')
 
 while True:
     command = input()
-    if command == 'q':
-        player.play(get_audio_stream('dQw4w9WgXcQ'))
-        player._set_property('loop-file', 'inf')
-    elif command == ' ':
-        # player.cycle('pause')
-      #   print(player._set_property('pause', True))
-        player._set_property('volume', 80)
-    elif command == 'w':
-        progress_ms = int(player._get_property('time-pos')) * 1000
-        length = int(player._get_property('duration')) * 1000
-      #   player.command('add_volume', -10)
-        player._set_property('volume', player._get_property('volume')-10)
-        print(player._get_property('max-volume'))
-        print(length, progress_ms)
-      #   player._set_property('pause', False)
-        
-      #   player.seek('10')
-        player._set_property('loop-file', False)
-
-
-
+    if command == ' ':
+        print(player.playlist_filenames)
+    elif command == 'n':
+        player.playlist_next()
+    elif command == 'p':
+        pprint(player._get_property('filename').strip('watch?v='))
+        pprint(player._get_property('shuffle'))
 
 
 # # player.audio_add(audio_stream.url)

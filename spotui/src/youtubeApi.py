@@ -1,7 +1,6 @@
 # from time import sleep
 import ytmusicapi
 import locale
-
 import spotipy.util as util
 from spotui.src.config import get_config
 from spotui.src.Logging import logging
@@ -18,13 +17,15 @@ class YoutubeAPI:
         # local variables used to update player state
         self.repeat_state = False
         self.current_track = '' # track id (video id)
-        self.loaded_track_ids = [] # track ids from playlist
+        self.loaded_tracks = [] # tracks from playlist
 
         self.auth()
         self.client = ytmusicapi.YTMusic()
         self.piped = PipedClient()
+        self.current_playlist = None
         locale.setlocale(locale.LC_NUMERIC, "C")
         self.player = MPV()
+        self.player._set_property('vid', False)
     def auth(self):
 
         ...
@@ -58,20 +59,16 @@ class YoutubeAPI:
             status_dynamic = {
                 'is_playing': not self.player._get_property('pause'), # opposite
                 'progress_ms': int(self.player._get_property('time-pos')) * 1000,
-                'shuffle_state': False, # to be implemented
+                'shuffle_state': self.player._get_property('shuffle'),
                 'repeat_state': self.repeat_state,
 
                 # repeat_state: False, # to be implemented
                 'item': {
-                    'id': self.current_track,
-                    'name': self.current_track['name'],
-                    'artist': self.current_track['artist'],
+                    'id': self.current_track.get('id'),
+                    'name': self.current_track.get('name'),
+                    'artist': self.current_track.get('artist'),
                     'duration_ms': int(self.player._get_property('duration')) * 1000
                 },
-
-                
-                
-        
 
             }
             return status_dynamic
@@ -110,16 +107,40 @@ class YoutubeAPI:
         return items
 
     def start_playback(self, track):
-        try:
-            self.current_track = track
-            # dc = {}
-            stream_url = self.get_audio_stream(track['id'])
+        # try:
+            # this is called only when you manually play a track
+
+            if self.current_playlist:
+                # initialize track template
+                self.current_track=track
+                
+                self.player.play(f'https://www.youtube.com/playlist?list={self.current_playlist}')
+                # self.player.wait_until_playing()
+                
+                self.update_current_track(track['id'])
+                return
             
-            self.player.play(stream_url)
-            self.current_track.setdefault('item', {})['id'] = track['id']
-            # self.player.wait_until_playing()
-        except Exception as e:
-            pass
+            self.player.play('https://www.youtube.com/watch?v='+track['id'])
+            self.player.wait_until_playing()
+            self.update_current_track(track['id'])
+        # except Exception as e:
+            # pass
+
+    # update current track state in self.get_playing()['item']
+    def update_current_track(self, id=None):
+        if id:
+            current_track_id = id
+        
+        if not id:
+            current_track_id = self.player._get_property('filename').strip('watch?v=')
+
+        self.current_track.setdefault('item', {})['id'] = current_track_id
+        for track in self.loaded_tracks:
+            if track['id'] == current_track_id:
+                self.current_track['name'] = track['name']
+                self.current_track['artist'] = track['artist']
+                # os.system('konsole')
+                return
 
     def toggle_playback(self):
         try:
@@ -133,41 +154,48 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
-    def previous_track(self, device_id):
+    def previous_track(self):
         try:
-            self.client.previous_track(device_id)
+
+            self.player.playlist_prev()
+            self.update_current_track()
+            
+            return
         except Exception as e:
             pass
 
-    def next_track(self, device_id):
+    def next_track(self):
         try:
-            self.client.next_track(device_id)
+            self.player.playlist_next()
+            self.update_current_track()
+            
+            return
         except Exception as e:
             pass
 
     def seek_track(self, position):
-        # try:
+        try:
             self.player.seek(position)
-        # except Exception as e:
-            # pass
+        except Exception as e:
+            pass
     
     def change_volume(self, audio_amount):
-        # try:
+        try:
             volume = self.player._get_property('volume')
             if  0 < volume+audio_amount < 130:
                 self.player._set_property('volume', volume+audio_amount)
-        # except Exception as e:
-            # pass
+        except Exception as e:
+            pass
     def get_playlists(self):
         try:
             # this grabs playlists spotify is trying to get the user to listen to
             # playlists = self.client.user_playlists('spotify')
 
             playlists = []
+            get_playlists = None
             for playlist in get_config()['playlists']:
                 # time.sleep(1)
-                # print(playlist)
-
+                # print(playlist)``
                 get_playlists = self.client.get_playlist(f'{playlist}', limit=0,related=False,suggestions_limit=0)
                 # print(get_playlists)
                 playlists.append({key: get_playlists.get(key) for key in ['title', 'id']}) #seperate stuff
@@ -181,10 +209,12 @@ class YoutubeAPI:
 
     def get_playlist_tracks(self, playlist_id):
         # try:
+            self.current_playlist=playlist_id
             playlist = self.client.get_playlist(playlist_id,limit=None,related=False,suggestions_limit=0)
             tracks = [{key: track.get(key) for key in ['title', 'videoId', 'artists']} for track in playlist['tracks']]
             
-            return list(map(self.__map_tracks, tracks)) 
+            self.loaded_tracks = list(map(self.__map_tracks, tracks)) 
+            return self.loaded_tracks
         
         # except Exception as e:
         #     pass
@@ -198,7 +228,7 @@ class YoutubeAPI:
 
     def shuffle(self, state):
         try:
-            devices = self.client.shuffle(state)
+            self.player.playlist_shuffle()
         except Exception as e:
             pass
 
@@ -220,7 +250,6 @@ class YoutubeAPI:
         out = {"name": track['title'],
         "artist": track["artists"][0]["name"],
         "id": track["videoId"]}
-        self.current_track = out
         return out
 
     def __map_playlists(self, playlist):

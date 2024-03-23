@@ -107,6 +107,7 @@ class MainForm:
                     if key in self.events.keys():
                         # run the event handler for the key
                         self.events[key]()
+                        self.render()
                     elif self.popup:
                         # or pass it to the active popup
                         self.popup.receive_input(key)
@@ -187,11 +188,10 @@ class MainForm:
         if self.status and self.status["is_playing"]:
             self.api.previous_track(self.device_id)
 
-    @debounce(0.5)
+    # @debounce(2)
     def next_track(self):
         if self.status and self.status["is_playing"]:
-            self.api.next_track(self.device_id)
-
+            self.api.next_track()
     @debounce(1.5)
     def toggle_shuffle(self):
         status = self.api.get_playing()
