@@ -2,7 +2,6 @@ import curses
 from spotui.src.util import truncate
 from spotui.src.menu import Menu
 from spotui.src.component import Component
-from client import showStatusMsg
 
 class PlaylistMenu(Component):
     def __init__(self, stdscr, api, change_tracklist):
@@ -16,14 +15,11 @@ class PlaylistMenu(Component):
 
     def restart(self):
         self.items = self.api.get_playlists()
-        showStatusMsg(f'{self.items} hello')
-        
         scry, scrx = self.stdscr.getmaxyx()
         self.startx = 0
         self.endx = round(scrx / 4) - 2
         self.starty = 0
         self.endy = scry - 5
-        showStatusMsg(f'{list(map(self.__map_playlists, self.items))}')
         self.component = Menu(
             self.stdscr,
             list(map(self.__map_playlists, self.items)),

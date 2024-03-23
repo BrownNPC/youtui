@@ -1,46 +1,50 @@
 
 # USING MPV TO PLAY YOUTUBE AUDIOS WITH PIPED API
-# from piped_api import PipedClient
-# import mpv
+from piped_api import PipedClient
+import mpv
 
 
-# import mpv
-# player = mpv.MPV()
+import mpv
+player = mpv.MPV()
 
-# # player.play('https://youtu.be/DOmdB7D-pUU')
+# player.play('https://youtu.be/DOmdB7D-pUU')
 
 
-# import os
+import os
 
-# CLIENT = PipedClient()
+CLIENT = PipedClient()
 
-# def get_audio_stream(videoid):
-#     video = CLIENT.get_video(video_id=videoid)
-#     return video.get_streams('audio')[3].url
+def get_audio_stream(videoid):
+    video = CLIENT.get_video(video_id=videoid)
+    return video.get_streams('audio')[3].url
 
-# # Print out the first audio stream URL for a video:
-# # print(audio_stream.url)
-# player.play(get_audio_stream('MRbRe5f9G3Q'))
-# player.wait_for_playback
-# # player.property_add("pause", 1)
-# print('done')
+# Print out the first audio stream URL for a video:
+# print(audio_stream.url)
+player.play(get_audio_stream('MRbRe5f9G3Q'))
+player.wait_for_playback
+# player.property_add("pause", 1)
+print('done')
 
-# while True:
-#     command = input()
-#     if command == 'q':
-#         player.play(get_audio_stream('dQw4w9WgXcQ'))
-#         player._set_property('loop-file', 'inf')
-#     elif command == ' ':
-#         # player.cycle('pause')
-#         print(player._set_property('pause', True))
-#     elif command == 'w':
-#         progress_ms = int(player._get_property('time-pos')) * 1000
-#         length = int(player._get_property('duration')) * 1000
-#         print(length, progress_ms)
-#         player._set_property('pause', False)
+while True:
+    command = input()
+    if command == 'q':
+        player.play(get_audio_stream('dQw4w9WgXcQ'))
+        player._set_property('loop-file', 'inf')
+    elif command == ' ':
+        # player.cycle('pause')
+      #   print(player._set_property('pause', True))
+        player._set_property('volume', 80)
+    elif command == 'w':
+        progress_ms = int(player._get_property('time-pos')) * 1000
+        length = int(player._get_property('duration')) * 1000
+      #   player.command('add_volume', -10)
+        player._set_property('volume', player._get_property('volume')-10)
+        print(player._get_property('max-volume'))
+        print(length, progress_ms)
+      #   player._set_property('pause', False)
         
-#         player.seek('10')
-#         player._set_property('loop-file', False)
+      #   player.seek('10')
+        player._set_property('loop-file', False)
 
 
 
@@ -99,15 +103,15 @@
 
 
 # TESTING LIST COMPREHENSIONs
-from pprint import pprint
-from ytmusicapi import YTMusic
-from spotui.src.config import get_config
-import time
-ytmusic = YTMusic()
+# from pprint import pprint
+# from ytmusicapi import YTMusic
+# from spotui.src.config import get_config
+# import time
+# ytmusic = YTMusic()
 
-search_results =  ytmusic.search('among us drip', filter='songs', limit=50)
-res =[{'title': item['title'], 'artists': item['artists'][0]['name'], 'videoId': item['videoId']} 
-      for item in search_results]
+# search_results =  ytmusic.search('among us drip', filter='songs', limit=50)
+# res =[{'title': item['title'], 'artists': item['artists'][0]['name'], 'videoId': item['videoId']} 
+#       for item in search_results]
 
 
-pprint(res)
+# pprint(res)

@@ -2,7 +2,6 @@ import curses
 from spotui.src.util import truncate
 from spotui.src.menu import Menu
 from spotui.src.component import Component
-from client import showStatusMsg
 
 class TracksMenu(Component):
     def __init__(self, stdscr, api, play_track, status=None):
@@ -26,7 +25,6 @@ class TracksMenu(Component):
         self.update_tracks(self.tracks, self.title)
 
     def update_tracks(self, tracks, title):
-        showStatusMsg(f'UPDATING TRACKS \n -------- {tracks}')
         self.tracks = tracks
         self.items = list(map(self.__map_tracks, tracks)) if tracks else []
         self.title = title

@@ -42,6 +42,8 @@ class MainForm:
             ord("n"): self.next_track,
             ord("s"): self.toggle_shuffle,
             ord("r"): self.cycle_repeat,
+            ord(","): self.lower_volume,
+            ord("."): self.raise_volume,
             curses.KEY_RIGHT: self.seek_forward,
             curses.KEY_LEFT: self.seek_backward,
         }
@@ -173,14 +175,21 @@ class MainForm:
         self.api.toggle_playback()
 
 
+    def lower_volume(self):
+        if self.status and self.status["is_playing"]:
+            self.api.change_volume(-10)
+
+    def raise_volume(self):
+        if self.status and self.status["is_playing"]:
+            self.api.change_volume(+10)
     @debounce(0.5)
     def previous_track(self):
-        if self.device_id and self.status and self.status["is_playing"]:
+        if self.status and self.status["is_playing"]:
             self.api.previous_track(self.device_id)
 
     @debounce(0.5)
     def next_track(self):
-        if self.device_id and self.status and self.status["is_playing"]:
+        if self.status and self.status["is_playing"]:
             self.api.next_track(self.device_id)
 
     @debounce(1.5)

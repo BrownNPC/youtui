@@ -3,9 +3,9 @@ from spotui.src.util import ms_to_hms, truncate
 from spotui.src.menu import Menu
 from spotui.src.component import Component
 from spotui.src.config import get_config
-from client import showStatusMsg
 
 config = get_config()
+
 use_nerd_fonts = config.get("other", "use_nerd_fonts") == "yes"
 play_icon = "契" if use_nerd_fonts else "▶"
 pause_icon = " " if use_nerd_fonts else "⏸ "
@@ -59,7 +59,6 @@ class NowPlayingComponent:
         if status:
             self.playing = status["is_playing"]
         if self.playing and status and status["item"]:
-            showStatusMsg(f'NOW RUNNING RENDER {status}')
             current_track = status["item"]
             self.track_name = current_track["name"]
             self.artist_name = current_track["artist"]
