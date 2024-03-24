@@ -4,8 +4,8 @@ import time
 import ytmusicapi
 import locale
 import spotipy.util as util
-from spotui.src.config import get_config
-from spotui.src.Logging import logging
+from youtui.src.config import get_config
+from youtui.src.Logging import logging
 from reverseengineering import is_paused, is_playing # dummy data
 from piped_api import PipedClient
 import os

@@ -1,40 +1,28 @@
 import curses
-from spotui.src.menu import Menu
-from spotui.src.component import Component
+from youtui.src.util import truncate
+from youtui.src.menu import Menu
+from youtui.src.component import Component
 
-
-class LibraryMenu(Component):
+class PlaylistMenu(Component):
     def __init__(self, stdscr, api, change_tracklist):
         self.stdscr = stdscr
         self.api = api
         self.change_tracklist = change_tracklist
-        self.title = "Made For You"
+        self.title = "Playlists"
         self.interactive = True
-        self.items = [
-            {
-                "text": "Top Tracks",
-                "handler": self.__select_top_tracks
-            },
-            {
-                "text": "Recently Played",
-                "handler": self.__select_recent_tracks
-            },
-            {
-                "text": "Liked Songs",
-                "handler": self.__select_liked_tracks
-            },
-        ]
+        self.items = self.api.get_playlists()
         self.restart()
 
     def restart(self):
+        self.items = self.api.get_playlists()
         scry, scrx = self.stdscr.getmaxyx()
         self.startx = 0
         self.endx = round(scrx / 4) - 2
         self.starty = 0
-        self.endy = 5
+        self.endy = scry - 5
         self.component = Menu(
             self.stdscr,
-            self.items,
+            list(map(self.__map_playlists, self.items)),
             self.starty,
             self.startx,
             self.endy,
@@ -46,17 +34,22 @@ class LibraryMenu(Component):
             if self.component and self.component.scroll_start else 0,
         )
 
-    def __select_top_tracks(self):
-        self.change_tracklist(self.api.get_top_tracks(), "Top Tracks")
+    def __select_playlist(self, playlist_name, playlist_id):
+        self.change_tracklist(self.api.get_playlist_tracks(playlist_id),
+                              playlist_name)
 
-    def __select_recent_tracks(self):
-        self.change_tracklist(self.api.get_recently_played(),
-                              "Recently Played")
+    def __map_playlists(self, item):
+        available_space = self.endx - self.startx - 6
+        item["text"] = truncate(item["text"], available_space)
 
-    def __select_liked_tracks(self):
-        self.change_tracklist(self.api.get_liked_tracks(), "Liked Songs")
+        def handler():
+            self.__select_playlist(item["text"], item["id"])
+
+        item["handler"] = handler
+        return item
 
     def receive_input(self, key):
+        ...
         if key == curses.KEY_ENTER or key in [10, 13]:
             self.items[self.component.selected]["handler"]()
         else:

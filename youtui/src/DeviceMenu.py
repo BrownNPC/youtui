@@ -1,7 +1,7 @@
 import curses
-from spotui.src.util import truncate
-from spotui.src.menu import Menu
-from spotui.src.component import Component
+from youtui.src.util import truncate
+from youtui.src.menu import Menu
+from youtui.src.component import Component
 
 
 class DeviceMenu(Component):

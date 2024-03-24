@@ -2,15 +2,15 @@ import sys
 import time
 import curses
 from threading import Thread, Lock
-from spotui.src.util import debounce
-from spotui.src.Logging import logging
-from spotui.src.youtubeApi import YoutubeAPI
-from spotui.src.TracksMenu import TracksMenu
-from spotui.src.LibraryMenu import LibraryMenu
-from spotui.src.PlaylistMenu import PlaylistMenu
-from spotui.src.DeviceMenu import DeviceMenu
-from spotui.src.SearchInput import SearchInput
-from spotui.src.NowPlaying import NowPlaying
+from youtui.src.util import debounce
+from youtui.src.Logging import logging
+from youtui.src.youtubeApi import YoutubeAPI
+from youtui.src.TracksMenu import TracksMenu
+from youtui.src.LibraryMenu import LibraryMenu
+from youtui.src.PlaylistMenu import PlaylistMenu
+from youtui.src.DeviceMenu import DeviceMenu
+from youtui.src.SearchInput import SearchInput
+from youtui.src.NowPlaying import NowPlaying
 
 starttime = time.time()
 lock = Lock()

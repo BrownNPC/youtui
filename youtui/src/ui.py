@@ -1,5 +1,5 @@
-from spotui.src.MainForm import MainForm
-from spotui.src.colors import init_colors
+from youtui.src.MainForm import MainForm
+from youtui.src.colors import init_colors
 
 
 class App:

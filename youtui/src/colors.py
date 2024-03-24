@@ -1,6 +1,6 @@
 import curses
-from spotui.src.config import get_config
-from spotui.src.util import theme_load
+from youtui.src.config import get_config
+from youtui.src.util import theme_load
 
 def init_colors():
 

@@ -1,8 +1,8 @@
 import curses
-from spotui.src.util import ms_to_hms, truncate
-from spotui.src.menu import Menu
-from spotui.src.component import Component
-from spotui.src.config import get_config
+from youtui.src.util import ms_to_hms, truncate
+from youtui.src.menu import Menu
+from youtui.src.component import Component
+from youtui.src.config import get_config
 
 config = get_config()
 

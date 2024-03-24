@@ -1,7 +1,7 @@
 import curses
-from spotui.src.util import truncate
-from spotui.src.input import Input
-from spotui.src.component import Component
+from youtui.src.util import truncate
+from youtui.src.input import Input
+from youtui.src.component import Component
 
 
 class SearchInput(Component):

@@ -3,8 +3,8 @@ import sys
 import argparse
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from os import devnull
-from spotui.src.ui import App
-from spotui.version import __version__
+from youtui.src.ui import App
+from youtui.version import __version__
 
 
 
