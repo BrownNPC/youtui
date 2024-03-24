@@ -7,8 +7,8 @@ from youtui.src.ui import App
 from youtui.version import __version__
 
 parser = argparse.ArgumentParser(
-                    prog = 'SpoTUI',
-                    description = 'Spotify in the terminal')
+                    prog = 'YT-Music Tui',
+                    description = 'Youtube music in the terminal')
 parser.add_argument('-v', '--version',
                     action='store_true')
 args = parser.parse_args()

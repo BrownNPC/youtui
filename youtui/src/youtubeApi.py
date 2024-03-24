@@ -1,15 +1,12 @@
 # from time import sleep
 import errno
-import time
 import ytmusicapi
 import locale
 import spotipy.util as util
 from youtui.src.config import get_config
-from youtui.src.Logging import logging
 from reverseengineering import is_paused, is_playing # dummy data
 from piped_api import PipedClient
 import os
-from client import showStatusMsg
 from mpv import MPV
 
 class YoutubeAPI:
@@ -142,7 +139,6 @@ class YoutubeAPI:
                 with open(cache, 'w') as f:
 
                     for id in self.loaded_tracks_ids:
-                        showStatusMsg(f"Loaded tracks: {id}")
                         if id is not None:
                             f.write('https://music.youtube.com/watch?v='+id+'\n')
 

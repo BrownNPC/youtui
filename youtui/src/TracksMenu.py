@@ -9,7 +9,7 @@ class TracksMenu(Component):
         self.api = api
         self.currently_playing = None
         self.play_track = play_track
-        self.title = "Top Tracks"
+        self.title = "No Playlist Selected"
         self.interactive = True
         self.items = []
         self.tracks = []
