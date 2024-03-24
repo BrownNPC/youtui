@@ -1,4 +1,6 @@
 # from time import sleep
+import errno
+import time
 import ytmusicapi
 import locale
 import spotipy.util as util
@@ -7,6 +9,7 @@ from spotui.src.Logging import logging
 from reverseengineering import is_paused, is_playing # dummy data
 from piped_api import PipedClient
 import os
+from client import showStatusMsg
 from mpv import MPV
 
 class YoutubeAPI:
@@ -16,16 +19,33 @@ class YoutubeAPI:
 
         # local variables used to update player state
         self.repeat_state = False
-        self.current_track = '' # track id (video id)
+        self.shuffle_state =False
+        self.current_track = {
+            'item': {}
+        }
         self.loaded_tracks = [] # tracks from playlist
+        self.current_playlist = None
+        self.loaded_tracks_ids = []
+        self.search_results = None
 
         self.auth()
         self.client = ytmusicapi.YTMusic()
         self.piped = PipedClient()
-        self.current_playlist = None
         locale.setlocale(locale.LC_NUMERIC, "C")
         self.player = MPV()
         self.player._set_property('vid', False)
+
+
+        # initialize m3u file used to store playlist cache
+        __home_dir = os.path.expanduser("~")
+        self.__filename = os.path.join(__home_dir, ".config", "youtui", ".temp", "cache.m3u")
+        if not os.path.exists(os.path.dirname(self.__filename)):
+            try:
+                os.makedirs(os.path.dirname(self.__filename))
+            except OSError as exc:  # prevent race condition
+                if exc.errno != errno.EEXIST:
+                    raise
+
     def auth(self):
 
         ...
@@ -59,7 +79,7 @@ class YoutubeAPI:
             status_dynamic = {
                 'is_playing': not self.player._get_property('pause'), # opposite
                 'progress_ms': int(self.player._get_property('time-pos')) * 1000,
-                'shuffle_state': self.player._get_property('shuffle'),
+                'shuffle_state': self.shuffle_state,
                 'repeat_state': self.repeat_state,
 
                 # repeat_state: False, # to be implemented
@@ -89,7 +109,7 @@ class YoutubeAPI:
             items = [{'name': item['title'], 'artist': item['artists'][0]['name'], 'id': item['videoId']} 
                         for item in search_results ]
 
-
+            self.search_results=items
             return items
         except Exception as e:
             pass
@@ -107,33 +127,53 @@ class YoutubeAPI:
         return items
 
     def start_playback(self, track):
-        # try:
+        try:
             # this is called only when you manually play a track
+            self.shuffle_state=False
+            self.repeat_state=False
 
-            if self.current_playlist:
+            cache=self.__filename
+
+            self.loaded_tracks_ids = [loaded_track['id'] for loaded_track in self.loaded_tracks]
+            if self.current_playlist and track['id'] in self.loaded_tracks_ids:
                 # initialize track template
                 self.current_track=track
-                
-                self.player.play(f'https://www.youtube.com/playlist?list={self.current_playlist}')
-                # self.player.wait_until_playing()
+
+                with open(cache, 'w') as f:
+
+                    for id in self.loaded_tracks_ids:
+                        showStatusMsg(f"Loaded tracks: {id}")
+                        if id is not None:
+                            f.write('https://music.youtube.com/watch?v='+id+'\n')
+
+                self.player.play(cache)
+                self.player.wait_until_playing()
                 
                 self.update_current_track(track['id'])
                 return
             
-            self.player.play('https://www.youtube.com/watch?v='+track['id'])
+            self.player.play('https://music.youtube.com/watch?v='+track['id'])
             self.player.wait_until_playing()
-            self.update_current_track(track['id'])
-        # except Exception as e:
-            # pass
+            self.update_current_track()
+        except Exception as e:
+            pass
 
     # update current track state in self.get_playing()['item']
     def update_current_track(self, id=None):
         if id:
             current_track_id = id
         
-        if not id:
+        if not id: # its a nornam track, not a playlist
             current_track_id = self.player._get_property('filename').strip('watch?v=')
+            self.current_track.setdefault('item', {})['id'] = current_track_id
+            for track in self.search_results:
+                if track['id'] == current_track_id:
+                    self.current_track['name'] = track['name']
+                    self.current_track['artist'] = track['artist']
+                    # os.system('konsole')
+                    return
 
+        # it's a track in a playlist
         self.current_track.setdefault('item', {})['id'] = current_track_id
         for track in self.loaded_tracks:
             if track['id'] == current_track_id:
@@ -226,15 +266,20 @@ class YoutubeAPI:
         except Exception as e:
             pass
 
-    def shuffle(self, state):
-        try:
-            self.player.playlist_shuffle()
-        except Exception as e:
-            pass
+    def toggle_shuffle(self):
+        # try:
+            if not self.shuffle_state:
+                self.player.playlist_shuffle()
+                self.shuffle_state = True
+            else:
+                self.player.playlist_unshuffle()
+                self.shuffle_state = False
+        # except Exception as e:
+            # pass
 
-    def repeat(self, state):
+    def repeat(self):
         try:
-            if state:
+            if self.repeat_state == False:
                 # update local var
                 self.repeat_state = True
                 # enable looping in mpv

@@ -194,21 +194,14 @@ class MainForm:
             self.api.next_track()
     @debounce(1.5)
     def toggle_shuffle(self):
-        status = self.api.get_playing()
-        if status:
-            self.api.shuffle(not bool(self.status["shuffle_state"]))
+        if self.api.loaded_tracks_ids: # if a playlist is loaded
+            self.api.toggle_shuffle()
 
     @debounce(1.5)
     def cycle_repeat(self):
-        status = self.api.get_playing()
-        if status:
-            if status["repeat_state"] == "off":
-                self.api.repeat("track")
-            if status["repeat_state"] == "track":
-                self.api.repeat("context")
-            if status["repeat_state"] == "context":
-                self.api.repeat("off")
-
+        if self.status["is_playing"]:
+            self.api.repeat()
+    
     # @debounce(0)
     def seek_backward(self):
         if self.status and self.status["is_playing"]:

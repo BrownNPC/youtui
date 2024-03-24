@@ -71,9 +71,7 @@ class NowPlayingComponent:
         repeat = status["repeat_state"] if status else False
         shuffle_symbol = shuffle_icon if shuffle else ""
         repeat_symbol = ""
-        if repeat == "track":
-            repeat_symbol = repeat_track_icon
-        if repeat == "context":
+        if repeat == True:
             repeat_symbol = repeat_icon
         status_symbol = play_icon if self.playing else pause_icon
         timestamp = ms_to_hms(self.progress) + "/" + ms_to_hms(

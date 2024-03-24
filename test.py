@@ -7,54 +7,23 @@ from pprint import pprint
 import mpv
 player = mpv.MPV()
 
-# player.play('https://youtu.be/DOmdB7D-pUU')
-
 
 import os
 
 CLIENT = PipedClient()
 
-# def get_audio_stream(videoid):
-#     # video = CLIENT.get_video(video_id=videoid)
-#     # return video.get_streams('audio')[3].url
-
-#     url = f'https://www.youtube.com/watch?v={videoid}'
-#     ydl_opts = {}
-#     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-#     # get all information about the youtube video
-#       info = ydl.extract_info(url, download=False)
-
-#       urls = []
-#       for i in info['formats']:
-#           for j in i['url']:
-#               urls.append(j)
-#     return urls[-1]
-
-# # Print out the first audio stream URL for a video:
-# # print(audio_stream.url)
 player._set_property('vid', False)
-# playlist="""https://www.youtube.com/watch?v=f0HOQGTfkcs
-# https://www.youtube.com/watch?v=pb39n_bEHyA
-# https://www.youtube.com/watch?v=gYPK088cPJI
-# """
-player.loadfile()
-player.wait_until_playing()
-player.playlist_play_index(-1)
-# while len(player.playlist_filenames) < 2:
+
+player.play('playlist.m3u')
 # player.playlist_play_index(-1)
+# player.wait_until_playing()
 
-# player.play()
-# player.wait_for_playback()
-# for song in playlist:
-#     player.playlist_append(song)
-
-
-# player.loadfile('https://www.youtube.com/watch?v=gYPK088cPJI', 'append-play')
 print('done')
 
 while True:
     command = input()
     if command == ' ':
+        print(player.playlist_shuffle())
         print(player.playlist_filenames)
     elif command == 'n':
         player.playlist_next()
